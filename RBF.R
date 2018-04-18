@@ -64,7 +64,6 @@
 }
      # retorna o modelo RBF
     # Treina o modelo
-    modelo <- rbf(X, Y) # using default values for K and gamma
     #modelo
 
     # Implementacao da funcao para predicao
@@ -98,37 +97,54 @@
     target <- function(x1, x2) {
         2*(x2 - x1 + .25*sin(pi*x1) >= 0)-1
     }
+    convertIris <- function(){
+        m <- matrix (0, nrow = 150, ncol = 5)
+        for (i in 1:150){
+            for(j in 1:5){
+                if(j < 5 ){            
+                    m[i,j] <- iris[i,j]
+                }else{
+                    if(iris[i,j]=='setosa')
+                        m[i,j] <- -1
+                    if(iris[i,j]=='versicolor')
+                        m[i,j] <- 0
+                    if(iris[i,j]=='virginica')
+                        m[i,j] <- 1
+                }
+            }
+        }
+        return(m)
+    }
 
+    minhaIris <- convertIris()
+    
+    for(i in 1:10){
+        
+        a <- as.integer(i* 15 + 1)
+        b <- as.integer(1 + (i -1) * 15)
+        c<- as.integer(i* 15)
+        d <- as.integer((i -1) * 15)
+        teste <- minhaIris[b:c,]
+        if(i != 10 && i != 1){
+            treinamento <- minhaIris[1: d,]
+            treinamento <- rbind(treinamento,minhaIris[a : 150,])
+        }else{
+            if(i == 1)
+                treinamento <- minhaIris[a: 150,]
+            else
+                treinamento <- minhaIris[1: d,]
+        }
 
-    #Cria os dados treino
-
-    #plot(X$Sepal.Length,X$Sepal.Width,X$Petal.Length,X$Petal.Width, 3)
-
-    #Cria os dados de teste
-    minhaIris <- iris
-    for(i in 1:9){
-        X <- minhaIris[1:(150-15),1:4]
-        Y <- unlist(lapply(minhaIris[1:(150-15),5], desclassificadorIsis))
+        X <- treinamento[,1:4]
+        Y <- treinamento[,5]
         
         modelo <- rbf(X,Y)
 
-        X.out <- minhaIris[(150-15):150,1:4]
-        Y.out <- minhaIris[(150-15):150,5]
+        X.out <- teste[,1:4]
+        Y.out <- teste[,5]
         rbf.pred <- rbf.predict(modelo, X.out, classification=TRUE)
         erro <- sum(rbf.pred != Y.out)/15
-
-        #cat(i, (15*(i-1)+1), ":", 15*(i)+15, "\n")
-
-        aux1 <- minhaIris[136:150,]
-        aux2 <- minhaIris[(15*(i-1)+1):15*(i),]
-
-        print(minhaIris)
-        #print(aux2)
-
-        minhaIris[136:150,] <- aux2
-        minhaIris[(15*(i-1)+1):15*(i),] <- aux1
-
-        #print(erro)
+        print(erro)
     }
 
     # Mostrando os resultados graficamente
