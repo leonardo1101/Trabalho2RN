@@ -1,29 +1,33 @@
 
-# Implementacao simples da RBF
-# http://www.di.fc.ul.pt/~jpn/r/rbf/rbf.html
+    # Implementacao simples da RBF
+    # http://www.di.fc.ul.pt/~jpn/r/rbf/rbf.html
+    
+    # Cria um dataframe com 2 colunas, 100 observacoes
+    # Esses serao os dados de treinamento
 
-# Cria um dataframe com 2 colunas, 100 observacoes
-# Esses serao os dados de treinamento
+    desclassificadorIsis <- function(classe){
+        if(classe == 'setosa'){ 
+            return(-1)
+        }
+        if(classe == 'versicolor'){
+            return(0)
+        }
+        if(classe == 'virginica'){
+            return(1)
+        }
+    }
+    target <- function(x1, x2) {
+        2*(x2 - x1 + .25*sin(pi*x1) >= 0)-1
+    }
 
-#    N <- 300
-#    X <- data.frame(x1=runif(N, min=-1, max=1),
-#    x2=runif(N, min=-1, max=1))
 
-# Cria os valores de saida
-#   Y <- target(X$x1, X$x2)
-
-# Plota o grafico
-#    plot(X$x1, X$x2, col=Y+3)
-
-
-
-# Funcao RBF com o LSM com pseudo-inversa
-# Retorna um modelo RBF dado:
-# * observacoes x1...xN do dataset
-# * valor de saida de cada observacao
-# * numero de centros
-# * valor gama para a funcao Gaussiana
-# Precisa so pacote corpcor para a pseudo inversa
+    # Funcao RBF com o LSM com pseudo-inversa
+    # Retorna um modelo RBF dado:
+    # * observacoes x1...xN do dataset
+    # * valor de saida de cada observacao
+    # * numero de centros
+    # * valor gama para a funcao Gaussiana
+    # Precisa so pacote corpcor para a pseudo inversa
 
     library(corpcor)
     rbf <- function(X, Y, K=10, gama=1.0) {
@@ -58,12 +62,12 @@
     
         return(list(pesos=w, centros=mus, gama=gama))
 }
- # retorna o modelo RBF
-# Treina o modelo
-modelo <- rbf(X, Y) # using default values for K and gamma
-modelo
+     # retorna o modelo RBF
+    # Treina o modelo
+    modelo <- rbf(X, Y) # using default values for K and gamma
+    #modelo
 
-# Implementacao da funcao para predicao
+    # Implementacao da funcao para predicao
     rbf.predict <- function(modelo, X, classification=FALSE) {
         gama <- modelo$gama
         centros <- modelo$centros
@@ -96,24 +100,39 @@ modelo
     }
 
 
-#Cria os dados teste
-    N.test <- 200
-    X.out <- data.frame(x1=runif(N.test, min=-1, max=1),
-    x2=runif(N.test, min=-1, max=1))
-    Y.out <- target(X.out$x1, X.out$x2)
+    #Cria os dados treino
 
-    # Faz predicao nos dados de teste
-    rbf.pred <- rbf.predict(modelo, X.out, classification=TRUE)
-    # Verifica o erro
-    erro <- sum(rbf.pred != Y.out)/N.test
-    erro
+    #plot(X$Sepal.Length,X$Sepal.Width,X$Petal.Length,X$Petal.Width, 3)
+
+    #Cria os dados de teste
+    minhaIris <- iris
+    for(i in 1:9){
+        X <- minhaIris[1:(150-15),1:4]
+        Y <- unlist(lapply(minhaIris[1:(150-15),5], desclassificadorIsis))
+        
+        modelo <- rbf(X,Y)
+
+        X.out <- minhaIris[(150-15):150,1:4]
+        Y.out <- minhaIris[(150-15):150,5]
+        rbf.pred <- rbf.predict(modelo, X.out, classification=TRUE)
+        erro <- sum(rbf.pred != Y.out)/15
+
+        #cat(i, (15*(i-1)+1), ":", 15*(i)+15, "\n")
+
+        aux1 <- minhaIris[136:150,]
+        aux2 <- minhaIris[(15*(i-1)+1):15*(i),]
+
+        print(minhaIris)
+        #print(aux2)
+
+        minhaIris[136:150,] <- aux2
+        minhaIris[(15*(i-1)+1):15*(i),] <- aux1
+
+        #print(erro)
+    }
 
     # Mostrando os resultados graficamente
-    plot(X.out$x1, X.out$x2, col=Y.out+3, pch=0)
-    points(X.out$x1, X.out$x2, col=rbf.pred+3, pch=3)
-    points(modelo$centros, col="black", pch=19) # draw the model centers
-    legend("topleft",c("true value","predicted"),pch=c(0,3),bg="white")
-    target <- function(x1, x2) {
-        2*(x2 - x1 + .25*sin(pi*x1) >= 0)-1
-    }
-        
+    #plot(X.out$x1, X.out$x2, col=Y.out+3, pch=0)
+    #points(X.out$x1, X.out$x2, col=rbf.pred+3, pch=3)
+    #points(modelo$centros, col="black", pch=19) # draw the model centers
+    #legend("topleft",c("true value","predicted"),pch=c(0,3),bg="white")
