@@ -90,6 +90,11 @@ modelo
         }
         return(pred)
     }
+    
+    target <- function(x1, x2) {
+        2*(x2 - x1 + .25*sin(pi*x1) >= 0)-1
+    }
+
 
 #Cria os dados teste
     N.test <- 200
