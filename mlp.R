@@ -5,7 +5,6 @@
 ## Autor: João Gabriel Melo Barbirato, RA: 726546									##
 ## Professor: Ricardo Cerri 														##
 ######################################################################################
-#library(modelr)
 # Funcao de ativacao
 funcao.ativacao <- function(v){
 	return(1 / (1+exp(-v)))
@@ -22,14 +21,18 @@ der.funcao.ativacao <- function(y){
 # Entrada esperada: string da classe
 # Saída: lista de 3 posições
 desclassificadorIris <- function(classe){
-	if(classe == 'setosa'){ 
-		return(c(1,0,0))
-	}
-	if(classe == 'versicolor'){
-		return(c(0,1,0))
-	}
-	if(classe == 'virginica'){
-		return(c(0,0,1))
+	if(length(classe) <= 0){
+		return(NaN)
+	}else{
+		if(classe == 'setosa'){ 
+			return(c(1,0,0))
+		}
+		if(classe == 'versicolor'){
+			return(c(0,1,0))
+		}
+		if(classe == 'virginica'){
+			return(c(0,0,1))
+		}
 	}
 }# fim desclassificadorIris
 
@@ -158,8 +161,10 @@ mlp.retropropagacao <- function(arq,dados,n,limiar){
 classificaIris <- function(resultado){
 	if(resultado$y.escondida.saida[1] > resultado$y.escondida.saida[2] 
 		& resultado$y.escondida.saida[1] > resultado$y.escondida.saida[3]) return('setosa')
+
 	if(resultado$y.escondida.saida[2] > resultado$y.escondida.saida[1] 
 		& resultado$y.escondida.saida[2] > resultado$y.escondida.saida[3]) return('versicolor')
+
 	if(resultado$y.escondida.saida[3] > resultado$y.escondida.saida[2] 
 		& resultado$y.escondida.saida[3] > resultado$y.escondida.saida[1]) return('virginica')
 } # fim classificaIris
@@ -170,24 +175,21 @@ dados <- iris # base de dados iris
 # >>> DIFERENTE <<<
 dados[,1:4] <- scale(dados[,1:4], scale=FALSE) 	# heurística de normalizaçao
 												# para os dados numéricos do dataframe
+dados <- dados[sample(nrow(dados), nrow(dados)), ]
 
 arq <- arquitetura(4,8,3,funcao.ativacao,der.funcao.ativacao,desclassificadorIris) # >>> DIFERENTE <<<
 
-TP.setosa = 0
-Falso.setosa = 0
+soma_acuracia = 0
 
-TP.versicolor = 0
-Falso.versicolor = 0
-
-TP.virginica = 0
-Falso.virginica = 0
-for(i in 1:10){        
+nIter = 10
+for(i in 1:nIter){
+	m = matrix(0,ncol=3,nrow=3)
     a <- as.integer(i* 15 + 1)
     b <- as.integer(1 + (i -1) * 15)
     c<- as.integer(i* 15)
     d <- as.integer((i -1) * 15)
     teste <- dados[b:c,]
-    if(i != 10 && i != 1){
+    if(i != nIter && i != 1){
         treinamento <- dados[1: d,]
         treinamento <- rbind(treinamento,dados[a : 150,])
     }else{
@@ -200,35 +202,38 @@ for(i in 1:10){
     X <- treinamento[,1:4]
     Y <- treinamento[,5]
     
-	modelo <- mlp.retropropagacao(arq,cbind(X,Y),.1,1e-1)
-	cat("Iteracao", i, "concluida!\n")
 
+    modelo <- mlp.retropropagacao(arq,cbind(X,Y),.1,1e-1)
+    
     X.out <- teste[,1:4]
-    Y.out <- teste[,5]
-
-
-    for(i in 1:nrow(X.out)){
-    	Y.outv <- desclassificadorIris(Y.out)
-    	Y.pred <- desclassificadorIris(classificaIris(mlp.propagacao(modelo$arq, X.out[i,])))
-
-    	# contadores para acurácia
+    Y.out <- as.vector(teste[,5])
+    for(j in 1:nrow(X.out))
+    	Y.pred[j] <- classificaIris(mlp.propagacao(modelo$arq, X.out[j,]))
+    Y.pred = as.vector(Y.pred)
+    for(j in 1:length(Y.out)){
     	# setosa
-    	if(Y.outv == c(1,0,0)){
-    		if(Y.pred == Y.outv) TP.setosa = TP.setosa + 1
-    		else Falso.setosa = Falso.setosa + 1
-    	}
-    	# versicolor
-    	if(Y.outv == c(0,1,0)){
-    		if(Y.pred == Y.outv) TP.versicolor = TP.versicolor + 1
-    		else Falso.versicolor = Falso.versicolor + 1
-    	}
-    	# virginica
-    	if(Y.outv == c(1,0,0)){
-    		if(Y.pred == Y.outv) TP.virginica = TP.virginica + 1
-    		else Falso.virginica = Falso.virginica + 1
-    	}
-    }
+    	if(Y.out[j] == "setosa"){
+   			if(Y.pred[j] == "setosa") m[1,1] = m[1,1] + 1
+   			if(Y.pred[j] == "versicolor") m[2,1] = m[2,1] + 1
+   			if(Y.pred[j] == "virginica") m[3,1] = m[3,1] + 1
+   		}
+   		# versicolor
+   		else if(Y.out[j] == "versicolor"){
+   			if(Y.pred[j] == "setosa") m[1,2] = m[1,2] + 1
+   			if(Y.pred[j] == "versicolor") m[2,2] = m[2,2] + 1
+   			if(Y.pred[j] == "virginica") m[3,2] = m[3,2] + 1
+   		}
+   		# virginica
+   		else if(Y.out[j] == "virginica"){
+   			if(Y.pred[j] == "setosa") m[1,3] = m[1,3] + 1
+   			if(Y.pred[j] == "versicolor") m[2,3] = m[2,3] + 1
+   			if(Y.pred[j] == "virginica") m[3,3] = m[3,3] + 1
+   		}
+   	}
+   	print(m)
+    soma_acuracia = soma_acuracia + (m[1,1])/sum(m[,1]) + (m[2,2])/sum(m[,2]) + (m[3,3])/sum(m[,3])
+    dados <- dados[sample(nrow(dados), nrow(dados)), ]
 }
 
-acuracia_media = ((TP.setosa/(TP.setosa + Falso.setosa)) + (TP.versicolor/(TP.versicolor+ Falso.versicolor)) + (TP.virginica/(TP.virginica + Falso.virginica)))/3
-print(acuracia_media)
+soma_acuracia = soma_acuracia/(3*nIter)
+print(soma_acuracia)
