@@ -1,7 +1,9 @@
 import numpy as np
 from sklearn import datasets, preprocessing
+from sklearn.model_selection import KFold
+from sklearn.metrics import confusion_matrix, accuracy_score
 from random import random, seed
-#import pandas as pd
+
 seed()
 
 class MapaIris():
@@ -97,7 +99,6 @@ class MapaIris():
 
 
 dados = datasets.load_iris()
-#dados['data'] = preprocessing.scale(dados['data']) # normalizacao
 
 dado_setosa = dados['data'][0]
 dado_versicolor = dados['data'][50]
@@ -105,47 +106,18 @@ dado_virginica = dados['data'][100]
 
 mapa = MapaIris(.1,13,8,4)
 
-tamBloco = 15
+y_verdadeiro = []
+y_previsto = []
 
-for i in range(int(len(dados['data'])/tamBloco)):
-	print(-150 + i*tamBloco, " : ", -135+i*tamBloco)
-	treinoEntrada = dados['data'][:-tamBloco]
-	treinoSaida = dados['target'][:-tamBloco]
-#	treinoEntrada = dados['data'][-150 + i*tamBloco:-135+i*tamBloco]
-#	treinoSaida = dados['target'][-150 + i*tamBloco:-135+i*tamBloco]
-	if(i == 0):
-		testeEntrada = dados['data'][-tamBloco:]
-		testeSaida = dados['target'][-tamBloco:] 
-	else:
-		testeEntrada = dados['data'][(-i*tamBloco):((-i+1)*tamBloco)]
-		testeSaida = dados['target'][(-i*tamBloco):((-i+1)*tamBloco)]
+kf = KFold(n_splits=10, shuffle=True, random_state=None)
+for iteracao in range(10):
+	print("Iteracao: ", iteracao)
+	for indices_treino, indices_teste in kf.split(dados['data']):
+		mapa.treino(dados['data'][indices_treino], dados['target'][indices_treino])
+		for i in indices_teste:
+			y_previsto.append(mapa.teste(dados['data'][i]))
+			y_verdadeiro.append(dados['target'][i])
+		
 
-	mapa.treino(treinoEntrada, treinoSaida, 10)
-
-	# switch
-	if(i < 2):
-		auxEntrada = dados['data'][-150 + i*tamBloco:-135+i*tamBloco]
-		auxSaida = dados['target'][-150 + i*tamBloco:-135+i*tamBloco]
-	else:
-		auxEntrada = dados['data'][-149 + i*tamBloco:-135+i*tamBloco]
-		auxSaida = dados['target'][-149 + i*tamBloco:-135+i*tamBloco]
-	if(i == 0):
-		dados['data'][-150 + i*tamBloco:-135+i*tamBloco] = dados['data'][-tamBloco:]
-		dados['data'][-tamBloco:] = auxEntrada
-
-		dados['target'][-150 + i*tamBloco:-135+i*tamBloco] = dados['target'][-tamBloco:]
-		dados['target'][-tamBloco:] = auxSaida
-
-	else:
-		dados['data'][-150 + i*tamBloco:-135+i*tamBloco] = dados['data'][(-i*tamBloco):((-i+1)*tamBloco)]
-		dados['data'][(-i*tamBloco):((-i+1)*tamBloco)] = auxEntrada
-
-		dados['target'][-150 + i*tamBloco:-135+i*tamBloco] = testeSaida = dados['target'][(-i*tamBloco):((-i+1)*tamBloco)]
-		dados['target'][(-i*tamBloco):((-i+1)*tamBloco)] = auxSaida
-
-
-#print(dados['data'][-3:])
-#print(mapa.getMatriz())
-#print(mapa.teste(dado_setosa))
-#print(mapa.teste(dado_versicolor))
-#print(mapa.teste(dado_virginica))
+print(confusion_matrix(y_verdadeiro, y_previsto, [0,1,2]))
+print(accuracy_score(y_verdadeiro, y_previsto))
