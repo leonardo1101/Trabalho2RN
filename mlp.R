@@ -17,11 +17,11 @@ der.funcao.ativacao <- function(y){
 }
 
 # >>> DIFERENTE <<<
-# desclassificadorIsis
+# desclassificadorIris
 # Objetivo: transformar a string que classifica o dado em um vetor de 3 posições (uma para cada neurônio de saída)
 # Entrada esperada: string da classe
 # Saída: lista de 3 posições
-desclassificadorIsis <- function(classe){
+desclassificadorIris <- function(classe){
 	if(classe == 'setosa'){ 
 		return(c(1,0,0))
 	}
@@ -31,7 +31,7 @@ desclassificadorIsis <- function(classe){
 	if(classe == 'virginica'){
 		return(c(0,0,1))
 	}
-}# fim desclassificadorIsis
+}# fim desclassificadorIris
 
 # Arquitetura (da rede: matrizes com pesos iniciais)
 arquitetura <- function(num.entrada,  num.escondida, num.saida, funcao.ativacao,der.funcao.ativacao,desclassificador=NULL){
@@ -168,11 +168,19 @@ classificaIris <- function(resultado){
 dados <- iris # base de dados iris
 
 # >>> DIFERENTE <<<
-dados[,1:4] <- scale(dados[,1:3], scale=FALSE) 	# heurística de normalizaçao
+dados[,1:4] <- scale(dados[,1:4], scale=FALSE) 	# heurística de normalizaçao
 												# para os dados numéricos do dataframe
 
-arq <- arquitetura(4,8,3,funcao.ativacao,der.funcao.ativacao,desclassificadorIsis) # >>> DIFERENTE <<<
+arq <- arquitetura(4,8,3,funcao.ativacao,der.funcao.ativacao,desclassificadorIris) # >>> DIFERENTE <<<
 
+TP.setosa = 0
+Falso.setosa = 0
+
+TP.versicolor = 0
+Falso.versicolor = 0
+
+TP.virginica = 0
+Falso.virginica = 0
 for(i in 1:10){        
     a <- as.integer(i* 15 + 1)
     b <- as.integer(1 + (i -1) * 15)
@@ -192,26 +200,35 @@ for(i in 1:10){
     X <- treinamento[,1:4]
     Y <- treinamento[,5]
     
-	modelo <- mlp.retropropagacao(arq,X,.1,1e-2)
-	cat("Iteracao", i, "concluida!\nErro:")
+	modelo <- mlp.retropropagacao(arq,cbind(X,Y),.1,1e-1)
+	cat("Iteracao", i, "concluida!\n")
 
     X.out <- teste[,1:4]
     Y.out <- teste[,5]
-    pred <- mlp.propagacao(modelo, X.out)
-    erro <- sum(pred != Y.out)/15
-    cat(erro, "\n")
+
+
+    for(i in 1:nrow(X.out)){
+    	Y.outv <- desclassificadorIris(Y.out)
+    	Y.pred <- desclassificadorIris(classificaIris(mlp.propagacao(modelo$arq, X.out[i,])))
+
+    	# contadores para acurácia
+    	# setosa
+    	if(Y.outv == c(1,0,0)){
+    		if(Y.pred == Y.outv) TP.setosa = TP.setosa + 1
+    		else Falso.setosa = Falso.setosa + 1
+    	}
+    	# versicolor
+    	if(Y.outv == c(0,1,0)){
+    		if(Y.pred == Y.outv) TP.versicolor = TP.versicolor + 1
+    		else Falso.versicolor = Falso.versicolor + 1
+    	}
+    	# virginica
+    	if(Y.outv == c(1,0,0)){
+    		if(Y.pred == Y.outv) TP.virginica = TP.virginica + 1
+    		else Falso.virginica = Falso.virginica + 1
+    	}
+    }
 }
 
-
-
-# Arquitetura:
-# 4 neuronios na camada de entrada, pois há 4 atributos (com excessão da classe) em cada instância da base de dados
-# # 8 neuronios na camada escondida: trata-se de uma fração razoavel 
-# #   da quantidade total de dados (150) na base de dados (dados)
-# # 3 neuronios na camada de saída, dada a expecificação do trabalho
-
-# # >>> DIFERENTE <<<
-# # teste (após a normlização):
-# print(classificaIris(mlp.propagacao(modelo$arq, c(-0.74333333, 0.44266667, -2.358, 0.2)))) # é pra ser setosa
-# print(classificaIris(mlp.propagacao(modelo$arq, c(1.15666667, 0.14266667, 0.942, 1.4)))) # é pra ser versicolor
-# print(classificaIris(mlp.propagacao(modelo$arq, c(0.45666667, 0.24266667, 2.242, 2.5)))) # é pra ser virginica
+acuracia_media = ((TP.setosa/(TP.setosa + Falso.setosa)) + (TP.versicolor/(TP.versicolor+ Falso.versicolor)) + (TP.virginica/(TP.virginica + Falso.virginica)))/3
+print(acuracia_media)

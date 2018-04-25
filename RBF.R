@@ -30,7 +30,7 @@
     # Precisa so pacote corpcor para a pseudo inversa
 
     library(corpcor)
-    library(SDMTools)
+    #library(SDMTools)
     rbf <- function(X, Y, K=10, gama=1.0) {
         N <- dim(X)[1] # numero de observacoes
         ncols <- dim(X)[2] # numero de variaveis
@@ -150,7 +150,7 @@
     }
 
     minhaIris <- convertIris()
-    
+    print(minhaIris)
     for(i in 1:10){
         
         a <- as.integer(i* 15 + 1)
@@ -182,14 +182,14 @@
             if(rbf.pred[i,1] != Y.out[i,1] || rbf.pred[i,2] != Y.out[i,2] || rbf.pred[i,3] != Y.out[i,3])
                 soma <- soma + 1
         }
-        matrixC <-confusion.matrix(Y.out, rbf.pred, threshold = 0.5)
+        #matrixC <-confusion.matrix(Y.out, rbf.pred, threshold = 0.5)
 
         print("Erro:")
         
         print(soma/15)
         
-        print("Matriz confusão:")
-        print(matrixC)
+        #print("Matriz confusão:")
+        #print(matrixC)
     }
 
     # Mostrando os resultados graficamente
