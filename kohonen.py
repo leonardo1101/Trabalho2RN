@@ -112,21 +112,22 @@ acuracia = []
 for iteracao in range(10):
 	y_verdadeiro = []
 	y_previsto = []
+	print('\n')
 	print("Iteracao: ", iteracao)
 	for indices_treino, indices_teste in kf.split(dados['data']):
 		mapa.treino(dados['data'][indices_treino], dados['target'][indices_treino])
 		for i in indices_teste:
 			y_previsto.append(mapa.teste(dados['data'][i]))
 			y_verdadeiro.append(dados['target'][i])
-
+	print('Matriz de confusao:')
 	print(confusion_matrix(y_verdadeiro, y_previsto, [0,1,2]))
 	acuracia.append(accuracy_score(y_verdadeiro, y_previsto))
+	print('Acuracia: ', accuracy_score(y_verdadeiro, y_previsto))
 
-		
+
 acuraciaMedia = 0
 for a in acuracia:
 	acuraciaMedia = acuraciaMedia + a
 
 acuraciaMedia = acuraciaMedia/len(acuracia)
-print(acuraciaMedia)
-#print(accuracy_score(y_verdadeiro, y_previsto))
+print("\n\nAcuracia Media: ", acuraciaMedia)

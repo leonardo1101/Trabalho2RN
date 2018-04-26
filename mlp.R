@@ -207,6 +207,7 @@ for(i in 1:nIter){
     
     X.out <- teste[,1:4]
     Y.out <- as.vector(teste[,5])
+    Y.pred <- vector(length=nrow(X.out),mode="numeric")
     for(j in 1:nrow(X.out))
     	Y.pred[j] <- classificaIris(mlp.propagacao(modelo$arq, X.out[j,]))
     Y.pred = as.vector(Y.pred)
@@ -230,10 +231,18 @@ for(i in 1:nIter){
    			if(Y.pred[j] == "virginica") m[3,3] = m[3,3] + 1
    		}
    	}
-   	print(m)
     soma_acuracia = soma_acuracia + (m[1,1])/sum(m[,1]) + (m[2,2])/sum(m[,2]) + (m[3,3])/sum(m[,3])
+   	cat("\n")
+   	cat("Iteracao: ")
+   	cat(i, "\n")
+   	print("Matriz de confusao:")
+   	print(m)
+   	cat("Acuracia: ") 
+   	cat(((m[1,1])/sum(m[,1]) + (m[2,2])/sum(m[,2]) + (m[3,3])/sum(m[,3]))/3)
+   	cat("\n")
     dados <- dados[sample(nrow(dados), nrow(dados)), ]
 }
 
-soma_acuracia = soma_acuracia/(3*nIter)
-print(soma_acuracia)
+acuracia_media = soma_acuracia/(3*nIter)
+
+cat("\nAcuracia media: ", acuracia_media)
