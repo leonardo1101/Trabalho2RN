@@ -103,18 +103,16 @@ rbf.predict <- function(modelo, X, classification=FALSE) {
    
     if (classification) {
         previ <- matrix(0,nrow=nrow(X),ncol=3)
-    for(i in 1:nrow(X)){
-        for(j in 1:3){
-            if(sign(pred[i,j]) == 1)
-                previ[i,j]<- 1
-            else
-                previ[i,j]<- 0
+        for(i in 1:nrow(X)){
+            for(j in 1:3){
+                if(sign(pred[i,j]) == 1)
+                    previ[i,j]<- 1
+                else
+                    previ[i,j]<- 0
+            }
         }
+        return(previ)
     }
-    
-    return(previ)
-    }
-    
     return(pred)
 }
 
@@ -150,10 +148,10 @@ convertIris <- function(){
 }
 
 minhaIris <- convertIris()
-soma_acuracia = 0
+soma_acuracia <- 0
 minhaIris <- minhaIris[sample(nrow(minhaIris), nrow(minhaIris)), ]
-
-for(i in 1:10){
+nIter <- 10
+for(i in 1:nIter){
     a <- as.integer(i* 15 + 1)
     b <- as.integer(1 + (i -1) * 15)
     c<- as.integer(i* 15)
@@ -176,40 +174,47 @@ for(i in 1:10){
     
     X.out <- teste[,1:4]
     Y.out <- teste[,5:7]
-     
+    
     rbf.pred <- rbf.predict(modelo, X.out, classification=TRUE)
     soma <- 0 
-    for(i in 1:15){
-        if(rbf.pred[i,1] != Y.out[i,1] || rbf.pred[i,2] != Y.out[i,2] || rbf.pred[i,3] != Y.out[i,3])
+    for(j in 1:15){
+        if(rbf.pred[j,1] != Y.out[j,1] || rbf.pred[j,2] != Y.out[j,2] || rbf.pred[j,3] != Y.out[j,3])
             soma <- soma + 1
     }
-
+    
     #Calculo da matriz de confusão
     
     matrixConfusao <- matrix(0,nrow=3,ncol=3)
-    for(i in 1:nrow(Y.out)){
-        if(Y.out[i,1] == 1)
-            matrixConfusao[1,] <- matrixConfusao[1,] +  rbf.pred[i,]
+    for(j in 1:nrow(Y.out)){
+        if(Y.out[j,1] == 1){
+            if(rbf.pred[j,1] == 1) matrixConfusao[1,1] <- matrixConfusao[1,1] + 1
+            if(rbf.pred[j,2] == 1) matrixConfusao[2,1] <- matrixConfusao[2,1] + 1
+            if(rbf.pred[j,3] == 1) matrixConfusao[3,1] <- matrixConfusao[3,1] + 1
         
-        if(Y.out[i,2] == 1)
-            matrixConfusao[2,] <- matrixConfusao[2,] +  rbf.pred[i,]
+        }else if(Y.out[j,2] == 1){
+            if(rbf.pred[j,1] == 1) matrixConfusao[2,1] <- matrixConfusao[2,1] + 1
+            if(rbf.pred[j,2] == 1) matrixConfusao[2,2] <- matrixConfusao[2,2] + 1
+            if(rbf.pred[j,3] == 1) matrixConfusao[3,2] <- matrixConfusao[2,3] + 1
         
-        if(Y.out[i,3] == 1)
-            matrixConfusao[3,] <- matrixConfusao[3,] +  rbf.pred[i,]
+        }else if(Y.out[j,3] == 1){
+            if(rbf.pred[j,1] == 1) matrixConfusao[1,3] <- matrixConfusao[1,3] + 1
+            if(rbf.pred[j,2] == 1) matrixConfusao[2,3] <- matrixConfusao[2,3] + 1
+            if(rbf.pred[j,3] == 1) matrixConfusao[3,3] <- matrixConfusao[3,3] + 1
+        }
     }
     
-    soma_acuracia = (matrixConfusao[1,1] + matrixConfusao[2,2] + matrixConfusao[3,3])/sum(matrixConfusao)
+    soma_acuracia <- soma_acuracia + (matrixConfusao[1,1]/sum(matrixConfusao[,1])) + (matrixConfusao[2,2]/sum(matrixConfusao[,2])) + (matrixConfusao[3,3]/sum(matrixConfusao[,3]))
     minhaIris <- minhaIris[sample(nrow(minhaIris), nrow(minhaIris)), ]
-    
+
     cat("\n")
-   	cat("Iteracao: ")
-   	cat(i, "\n")
-   	print("Matriz de confusao:")
-   	print(matrixConfusao)
-   	cat("Acuracia: ") 
-   	cat(soma_acuracia)
-   	cat("\n")
+    cat("Iteracao: ")
+    cat(i, "\n")
+    print("Matriz de confusao:")
+    print(matrixConfusao)
+    cat("Acuracia: ") 
+    cat(((matrixConfusao[1,1]/sum(matrixConfusao[,1])) + (matrixConfusao[2,2]/sum(matrixConfusao[,2])) + (matrixConfusao[3,3]/sum(matrixConfusao[,3])))/3)
+    cat("\n")
 }
 
-acuracia_media = soma_acuracia/10
+acuracia_media = soma_acuracia/(3*nIter)
 cat("\nAcuracia media:", acuracia_media, "\n")

@@ -171,7 +171,7 @@ dados <- dados[sample(nrow(dados), nrow(dados)), ]
 
 arq <- arquitetura(4,8,3,funcao.ativacao,der.funcao.ativacao,desclassificadorIris) # >>> DIFERENTE <<<
 
-soma_acuracia = 0
+soma_acuracia <- 0
 
 nIter = 10
 # KFold:
@@ -209,15 +209,15 @@ for(i in 1:nIter){
     for(j in 1:length(Y.out)){
     	# setosa
     	if(Y.out[j] == "setosa"){
-   			if(Y.pred[j] == "setosa") m[1,1] = m[1,1] + 1
-   			if(Y.pred[j] == "versicolor") m[2,1] = m[2,1] + 1
-   			if(Y.pred[j] == "virginica") m[3,1] = m[3,1] + 1
+   			if(Y.pred[j] == "setosa") m[1,1] <- m[1,1] + 1
+   			if(Y.pred[j] == "versicolor") m[2,1] <- m[2,1] + 1
+   			if(Y.pred[j] == "virginica") m[3,1] <- m[3,1] + 1
    		}
    		# versicolor
    		else if(Y.out[j] == "versicolor"){
-   			if(Y.pred[j] == "setosa") m[1,2] = m[1,2] + 1
-   			if(Y.pred[j] == "versicolor") m[2,2] = m[2,2] + 1
-   			if(Y.pred[j] == "virginica") m[3,2] = m[3,2] + 1
+   			if(Y.pred[j] == "setosa") m[1,2] <- m[1,2] + 1
+   			if(Y.pred[j] == "versicolor") m[2,2] <- m[2,2] + 1
+   			if(Y.pred[j] == "virginica") m[3,2] <- m[3,2] + 1
    		}
    		# virginica
    		else if(Y.out[j] == "virginica"){
@@ -226,7 +226,7 @@ for(i in 1:nIter){
    			if(Y.pred[j] == "virginica") m[3,3] = m[3,3] + 1
    		}
    	}
-    soma_acuracia = soma_acuracia + (m[1,1])/sum(m[,1]) + (m[2,2])/sum(m[,2]) + (m[3,3])/sum(m[,3])
+    soma_acuracia <- soma_acuracia + (m[1,1])/sum(m[,1]) + (m[2,2])/sum(m[,2]) + (m[3,3])/sum(m[,3])
    	cat("\n")
    	cat("Iteracao: ")
    	cat(i, "\n")
