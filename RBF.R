@@ -152,6 +152,8 @@ convertIris <- function(){
 minhaIris <- convertIris()
 soma_acuracia = 0
 minhaIris <- minhaIris[sample(nrow(minhaIris), nrow(minhaIris)), ]
+
+matrixConfusao <- matrix(0,nrow=3,ncol=3)
 for(i in 1:10){
     a <- as.integer(i* 15 + 1)
     b <- as.integer(1 + (i -1) * 15)
@@ -182,14 +184,22 @@ for(i in 1:10){
         if(rbf.pred[i,1] != Y.out[i,1] || rbf.pred[i,2] != Y.out[i,2] || rbf.pred[i,3] != Y.out[i,3])
             soma <- soma + 1
     }
-    matrixC <-confusion.matrix(Y.out, rbf.pred, threshold = 0.5)
 
-    #print("Erro:")
+    #Calculo da matriz de confusão
+    for(i in 1:nrow(Y.out)){
+        if(Y.out[i,1] == 1)
+            matrixConfusao[1,] <- matrixConfusao[1,] +  rbf.pred[i,]
+        
+        if(Y.out[i,2] == 1)
+            matrixConfusao[2,] <- matrixConfusao[2,] +  rbf.pred[i,]
+        
+        if(Y.out[i,3] == 1)
+            matrixConfusao[3,] <- matrixConfusao[3,] +  rbf.pred[i,]
+    }
     
-    #print("Matriz confusão:")
-    #print(matrixC)
-    soma_acuracia = soma_acuracia + (matrixC[1,1] + matrixC[2,2])/sum(matrixC)
     minhaIris <- minhaIris[sample(nrow(minhaIris), nrow(minhaIris)), ]
 }
+
+soma_acuracia = (matrixConfusao[1,1] + matrixConfusao[2,2] + matrixConfusao[3,3])/sum(matrixConfusao)
 acuracia_media = soma_acuracia/10
 print(acuracia_media)
