@@ -10,7 +10,7 @@ seed()
 class MapaIris():
 
 	# Parâmetros
-	def __init__(self, taxa, dimensao, fi0, nVar):
+	def __init__(self, taxa, dimensao, fi0, nVar, decaimento):
 		self._taxa = taxa 			# taxa de aprendizado
 		self._dimensao = dimensao 	# dimensão (largura) da grade de neuronios
 		self._fi = fi0 				# funcao de aprendizado 
@@ -23,15 +23,18 @@ class MapaIris():
 		# Epocas de aprendizado
 		self._epoca = 1
 
+		# Decaimento
+		self._decaimento = decaimento
+
 	# metodos que sao chamados ao completar uma epoca
 	def _resetMatriz(self):
 		self._matriz = np.array([[-1 for i in range(self._dimensao)] for j in range(self._dimensao)])
 
 	def _atualizaTaxa(self):
-		self._taxa = self._taxa * np.exp(-self._epoca/1000)
+		self._taxa = self._taxa * np.exp(-self._epoca/self._decaimento)
 
 	def _atualizaFi(self):
-		self._fi = self._fi * np.exp(-self._epoca/(1000/np.log(self._fi0)))
+		self._fi = self._fi * np.exp(-self._epoca/(_decaimento/np.log(self._fi0)))
 
 	# Funcao de vizinhanca
 	def _vizinhanca(self, entrada, x, y):

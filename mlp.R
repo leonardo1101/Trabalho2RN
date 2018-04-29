@@ -1,10 +1,3 @@
-######################################################################################
-## mlp-trabalho1.R																	##
-## Primeiro trabalho para a disciplina de Tópicos de informática 8 (Redes Neurais)	##
-## Departamento de Computação da Universidade Federal de São Carlos (DC-UFSCar)		##
-## Autor: João Gabriel Melo Barbirato, RA: 726546									##
-## Professor: Ricardo Cerri 														##
-######################################################################################
 # Funcao de ativacao
 funcao.ativacao <- function(v){
 	return(1 / (1+exp(-v)))
@@ -172,7 +165,6 @@ classificaIris <- function(resultado){
 # main
 dados <- iris # base de dados iris
 
-# >>> DIFERENTE <<<
 dados[,1:4] <- scale(dados[,1:4], scale=FALSE) 	# heurística de normalizaçao
 												# para os dados numéricos do dataframe
 dados <- dados[sample(nrow(dados), nrow(dados)), ]
@@ -182,6 +174,7 @@ arq <- arquitetura(4,8,3,funcao.ativacao,der.funcao.ativacao,desclassificadorIri
 soma_acuracia = 0
 
 nIter = 10
+# KFold:
 for(i in 1:nIter){
 	m = matrix(0,ncol=3,nrow=3)
     a <- as.integer(i* 15 + 1)
@@ -207,6 +200,8 @@ for(i in 1:nIter){
     
     X.out <- teste[,1:4]
     Y.out <- as.vector(teste[,5])
+    
+    # Fim KFold
     Y.pred <- vector(length=nrow(X.out),mode="numeric")
     for(j in 1:nrow(X.out))
     	Y.pred[j] <- classificaIris(mlp.propagacao(modelo$arq, X.out[j,]))
