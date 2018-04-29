@@ -212,4 +212,4 @@ for(i in 1:10){
 }
 
 acuracia_media = soma_acuracia/10
-print(acuracia_media)
+cat("\nAcuracia media:", acuracia_media, "\n")
