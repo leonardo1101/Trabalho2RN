@@ -6,18 +6,24 @@ from random import random, seed
 
 seed()
 
+# Classe do Mapa de kohonen especializada para o dataset Iris
 class MapaIris():
 
+	# Parâmetros
 	def __init__(self, taxa, dimensao, fi0, nVar):
-		self._taxa = taxa
-		self._dimensao = dimensao
-		self._fi = fi0
-		self._fi0 = fi0
+		self._taxa = taxa 			# taxa de aprendizado
+		self._dimensao = dimensao 	# dimensão (largura) da grade de neuronios
+		self._fi = fi0 				# funcao de aprendizado 
+		self._fi0 = fi0 			# funcao de aprendizado (valor inicial)
+		# matriz que representa a classe que o neuronio _matriz[i][j] classifica
 		self._matriz = np.array([[-1 for i in range(self._dimensao)] for j in range(self._dimensao)])
+		# Array de pesos de cada neuronio
 		self.pesos = np.array([[[random() for i in range(nVar)] for j in range(self._dimensao)] for k in range(self._dimensao)])
 
+		# Epocas de aprendizado
 		self._epoca = 1
 
+	# metodos que sao chamados ao completar uma epoca
 	def _resetMatriz(self):
 		self._matriz = np.array([[-1 for i in range(self._dimensao)] for j in range(self._dimensao)])
 
@@ -27,14 +33,17 @@ class MapaIris():
 	def _atualizaFi(self):
 		self._fi = self._fi * np.exp(-self._epoca/(1000/np.log(self._fi0)))
 
+	# Funcao de vizinhanca
 	def _vizinhanca(self, entrada, x, y):
 		return np.exp(-np.linalg.norm(entrada - self.pesos[x][y])/(2*self._fi*self._fi))
 
+	# metodo que muda a epoca
 	def _mudaEpoca(self):
 		self._atualizaTaxa()
 		self._atualizaFi()
 		self._epoca += 1
 
+	# Classificacao pelo neuronio vencedor utilizando distancia euclidiana
 	def _vencedor(self, entrada):
 		i = 0;
 		j = 0;
@@ -54,7 +63,6 @@ class MapaIris():
 
 		for i in range(self._dimensao):
 			for j in range(self._dimensao):
-				#print(menor, ' > ',  np.linalg.norm(entrada - self.pesos[i][j]), ' ', (j + i*8), ' ', menor > np.linalg.norm(entrada - self.pesos[i][j]))
 				if(menor > np.linalg.norm(entrada - self.pesos[i][j])):
 					if(self._matriz[i][j] == -1):
 						menor = np.linalg.norm(entrada - self.pesos[i][j])
@@ -63,14 +71,15 @@ class MapaIris():
 
 		return([_xvencedor,_yvencedor])
 
+	# Treinamento dado um dataset de entrada
 	def treino(self, dTreino, saidas, periodo=1):
 		for iteracao in range(periodo):
 			self._resetMatriz()
 			_posicao = 0
 			for vTreino in dTreino:
-				#print(vTreino, " saida: ", saidas[_posicao])
 				[x, y] = self._vencedor(vTreino)
 				viz = self._vizinhanca(vTreino, x, y)
+
 				# procura o menor dos pesos e atualiza pesos
 				self.pesos[x][y] = self.pesos[x][y] + self._taxa* viz *(vTreino - self.pesos[x][y])
 				
@@ -94,6 +103,7 @@ class MapaIris():
 
 		return(self._matriz[_xvencedor][_yvencedor])
 
+	# acesso publico a matriz
 	def getMatriz(self):
 		return self._matriz
 
@@ -105,7 +115,6 @@ dado_versicolor = dados['data'][50]
 dado_virginica = dados['data'][100]
 
 mapa = MapaIris(.1,13,8,4)
-
 
 kf = KFold(n_splits=10, shuffle=True, random_state=None)
 acuracia = []
