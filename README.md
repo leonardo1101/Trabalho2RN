@@ -3,7 +3,7 @@
 ## Grupo:
 - João Gabriel Melo Barbirato, RA: 726546
 - Leonardo de Oliveira Peralta, RA: 726556
-- Bianca Garcia
+- Bianca Garcia Martins, RA: 606723
 
 ## Bibliotecas necessárias
 ### kohonen.py
