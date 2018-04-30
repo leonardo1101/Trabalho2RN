@@ -117,7 +117,7 @@ dado_setosa = dados['data'][0]
 dado_versicolor = dados['data'][50]
 dado_virginica = dados['data'][100]
 
-mapa = MapaIris(.1,13,8,4)
+mapa = MapaIris(.1,13,8,4,1000)
 
 kf = KFold(n_splits=10, shuffle=True, random_state=None)
 acuracia = []
