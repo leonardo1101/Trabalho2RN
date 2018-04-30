@@ -203,7 +203,8 @@ for(i in 1:nIter){
         }
     }
     
-    soma_acuracia <- soma_acuracia + (matrixConfusao[1,1]/sum(matrixConfusao[,1])) + (matrixConfusao[2,2]/sum(matrixConfusao[,2])) + (matrixConfusao[3,3]/sum(matrixConfusao[,3]))
+    soma_acuracia <- soma_acuracia + (matrixConfusao[1,1]/sum(matrixConfusao[,1])) + (matrixConfusao[2,2]/sum(matrixConfusao[,2])) 
+                     + (matrixConfusao[3,3]/sum(matrixConfusao[,3]))
     minhaIris <- minhaIris[sample(nrow(minhaIris), nrow(minhaIris)), ]
 
     cat("\n")
